@@ -1,0 +1,181 @@
+<script setup lang="ts">
+import { transactionViewOptions } from '~/constants';
+
+
+definePageMeta({
+  title: 'Summary',
+  description: 'Summary of your transactions',
+})
+
+interface Transaction {
+  type: string
+  amount: number
+  description: string
+  createdAt: string
+  _id: string
+  updatedAt: string
+}
+
+
+const toast = useToast()
+const router = useRouter()
+const store = useDefaultStore()
+const isModalOpen = ref(false)
+const selectedView = ref(transactionViewOptions[1])
+const { data, status, error, refresh, clear } = useAsyncData<{ current: Transaction[], last: Transaction[] }>(
+  'transactionsUser',
+  async () => {
+    const jwt = useCookie('jwt')
+    return await $fetch<{ current: Transaction[], last: Transaction[] }>(`/api/transaction?view=${selectedView.value}`, {
+      headers: {
+        Authorization: `Bearer ${jwt.value || store.jwt}`,
+      }
+    })
+  }
+)
+
+const loading = computed(() => {
+  return status.value !== 'success'
+})
+
+const transactionByDate = computed(() => {
+  let transactionGroup: any = {}
+  for (let transaction of data.value?.current || []) {
+    const date = new Date(transaction.createdAt).toISOString().split('T')[0]
+    if (transactionGroup[date]) {
+      transactionGroup[date].push(transaction)
+    } else {
+      transactionGroup = {
+        ...transactionGroup,
+        [date]: [transaction]
+      }
+    }
+  }
+  return transactionGroup
+})
+
+const income = computed(() => {
+  if (!data.value) return []
+  return data.value!.current.filter((transaction: Transaction) => transaction.type.toLowerCase() === 'income')
+})
+
+if (error.value) {
+  toast.add({
+    title: 'Error',
+    description: 'An error occurred while trying to fetch the transactions',
+  })
+}
+
+const lastIncome = computed(() => {
+  if (!data.value) return []
+  return data.value!.last.filter((transaction: Transaction) => transaction.type.toLowerCase() === 'income')
+})
+
+const lastExpanse = computed((): Transaction[] => {
+  if (!data.value) return []
+  return data.value!.last.filter((transaction: Transaction) => transaction.type.toLowerCase() === 'expanse')
+})
+
+const lastIncomeTotal = computed(() => {
+  if (!lastIncome.value) return 0
+  return useTotal(lastIncome.value).total.value
+})
+
+const lastExpanseTotal = computed(() => {
+  if (!lastExpanse.value) return 0
+  return useTotal(lastExpanse.value).total.value
+})
+
+const incomeTotal = computed(() => {
+  if (!income.value) return 0
+  return useTotal(income.value).total.value
+})
+
+const expanse = computed(() => {
+  if (!data.value) return []
+  return data.value!.current.filter((transaction: Transaction) => transaction.type.toLowerCase() === 'expanse')
+})
+
+const expanseTotal = computed(() => {
+  if (!expanse.value) return 0
+  return useTotal(expanse.value).total.value
+})
+
+const handleDeleteTransaction = async (id: string) => {
+  const res = await fetch(`/api/transaction`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${store.jwt}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ id }),
+  })
+  if (res.status === 200) {
+    toast.add({
+      title: 'Success',
+      description: 'Transaction deleted successfully',
+    })
+    refresh()
+  } else {
+    toast.add({
+      title: 'Error',
+      description: 'An error occurred while trying to delete the transaction',
+    })
+  }
+}
+
+watch(selectedView, () => refresh())
+
+const handleOpenModal = (value: boolean) => {
+  isModalOpen.value = value
+}
+
+const handleSubmit = () => {
+  refresh()
+}
+
+
+</script>
+
+<template>
+  <NuxtLayout name="default">
+    <section class="flex justify-between ">
+      <UNotifications />
+      <h1 class="text-4xl font-extrabold">Summary</h1>
+      <USelectMenu v-model="selectedView" :options="transactionViewOptions" />
+    </section>
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-16 mb-10">
+      <Trend title="Income" type="Income" :selectedView="selectedView" :amount="incomeTotal"
+        :last-amount="lastIncomeTotal" :periode="selectedView" color="green" :loading="loading" />
+      <Trend title="Expanse" type="Expanse" :selectedView="selectedView" :amount="expanseTotal"
+        :last-amount="lastExpanseTotal" :periode="selectedView" color="red" :loading="loading" />
+    </section>
+    <section>
+      <div class="flex my-8 justify-between">
+        <div>
+          <h2 class="text-3xl mb-4 font-bold">Transactions</h2>
+          <p class="text-gray-500">You have {{ income.length }} incomes and {{ expanse.length }} expanses this {{
+            selectedView }}
+          </p>
+        </div>
+        <div>
+          <UButton @click="handleOpenModal(true)" icon="i-material-symbols-add-circle-outline-rounded" size="sm"
+            color="gray" variant="solid" label="Add" :trailing="false" />
+        </div>
+      </div>
+    </section>
+    <section>
+      <Modal v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
+    </section>
+    <section v-if="!loading">
+      <div class="mb-8" v-for="(transactionOnDay, date) in transactionByDate" :key="date">
+        <TransactionSummaryDaily :transaction="transactionOnDay" :date="date.toString()" />
+        <Transaction v-for="(transactionUser, index) in transactionOnDay" :key="index" :data="transactionUser"
+          :Day="transactionByDate" :loading="loading" @delete="handleDeleteTransaction" />
+      </div>
+    </section>
+    <div v-else>
+      <USkeleton v-for="i in 3" :key="i" class="h-8 w-full mb-2" />
+    </div>
+  </NuxtLayout>
+</template>
