@@ -19,7 +19,8 @@ const action = [
         label: 'Edit',
         icon: 'i-heroicons-pencil-square-20-solid',
         click: () => {
-            console.log('edit')
+            emit('edit', props.data.createdAt.split('T')[0], props.data._id)
+            return toast.clear()
         }
     }],
     [{

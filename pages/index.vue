@@ -21,7 +21,15 @@ const toast = useToast()
 const router = useRouter()
 const store = useDefaultStore()
 const isModalOpen = ref(false)
+const isEdit = ref(false)
 const selectedView = ref(transactionViewOptions[1])
+const transactionDetail = reactive({
+  createdAt: `${new Date().toISOString().split('T')[0]}`,
+  description: '',
+  type: '',
+  amount: 0,
+  _id: '',
+})
 const { data, status, error, refresh, clear } = useAsyncData<{ current: Transaction[], last: Transaction[] }>(
   'transactionsUser',
   async () => {
@@ -124,6 +132,18 @@ const handleDeleteTransaction = async (id: string) => {
   }
 }
 
+const handleEdit = (date: string, _id: string) => {
+  isEdit.value = true
+  const transaction = transactionByDate.value[date].find((transaction: Transaction) => transaction._id === _id)
+  if (!transaction) return
+  transactionDetail.createdAt = transaction.createdAt.split('T')[0]
+  transactionDetail.description = transaction.description
+  transactionDetail.type = transaction.type
+  transactionDetail.amount = transaction.amount
+  transactionDetail._id = transaction._id
+  isModalOpen.value = true
+}
+
 watch(selectedView, () => refresh())
 
 const handleOpenModal = (value: boolean) => {
@@ -165,13 +185,14 @@ const handleSubmit = () => {
       </div>
     </section>
     <section>
-      <Modal v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
+      <Modal v-if="!isEdit" v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
+      <Modal v-else :data="transactionDetail" :isEdit="true" v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
     </section>
     <section v-if="!loading">
       <div class="mb-8" v-for="(transactionOnDay, date) in transactionByDate" :key="date">
         <TransactionSummaryDaily :transaction="transactionOnDay" :date="date.toString()" />
         <Transaction v-for="(transactionUser, index) in transactionOnDay" :key="index" :data="transactionUser"
-          :Day="transactionByDate" :loading="loading" @delete="handleDeleteTransaction" />
+          :Day="transactionByDate" :loading="loading" @delete="handleDeleteTransaction" @edit="handleEdit" />
       </div>
     </section>
     <div v-else>

@@ -1,6 +1,7 @@
-import transactions from "~/server/model/transactions";
+import transactions, { type Transaction } from "~/server/model/transactions";
 import jwt from "jsonwebtoken";
 import Users from "~/server/model/users";
+import mongoose, { Types } from "mongoose";
 
 export default defineEventHandler(async (events) => {
   try {
@@ -8,7 +9,6 @@ export default defineEventHandler(async (events) => {
     const header = getHeader(events, "Authorization");
     const token = header?.split(" ")[1];
     if (!token) {
-      setResponseStatus(events, 401);
       return {
         statusCode: 401,
         body: { message: "Unauthorized" },
@@ -19,7 +19,6 @@ export default defineEventHandler(async (events) => {
       runTimeConfig.secretJwtKey as string
     );
     if (!isValidToken) {
-      setResponseStatus(events, 401);
       return {
         statusCode: 401,
         body: { message: "Unauthorized" },
@@ -28,7 +27,6 @@ export default defineEventHandler(async (events) => {
     const decoded = jwt.decode(token) as { email: string; name: string };
     const user = await Users.findOne({ email: decoded.email });
     if (!user) {
-      setResponseStatus(events, 401);
       return {
         statusCode: 401,
         body: { message: "Unauthorized" },
@@ -39,6 +37,7 @@ export default defineEventHandler(async (events) => {
       type: string;
       description: string;
       createdAt?: string;
+      _id: string;
     }>(events);
     if (!body) {
       setResponseStatus(events, 400);
@@ -47,19 +46,33 @@ export default defineEventHandler(async (events) => {
         body: { message: "Bad request" },
       };
     }
-    const { amount, type, description, createdAt } = body;
-    const transaction = new transactions({
-      user: user.id,
-      amount,
-      type,
-      description,
-      createdAt,
-    });
-    await transaction.save();
-    setResponseStatus(events, 201);
+    const { amount, type, description, createdAt, _id } = body;
+    const transaction = await transactions.findOne({ _id });
+    if (!transaction) {
+      setResponseStatus(events, 404);
+      return {
+        statusCode: 404,
+        body: { message: "Transaction not found" },
+      };
+    }
+    if (transaction.user != user.id) {
+      setResponseStatus(events, 403);
+      return {
+        statusCode: 403,
+        body: { message: "Forbidden" },
+      };
+    }
+    transaction.amount = amount;
+    transaction.type = type;
+    transaction.description = description;
+    transaction.createdAt = createdAt
+      ? new Date(createdAt)
+      : transaction.createdAt;
+    await transaction.save(); // Update the user's balance based on the transaction type
+    setResponseStatus(events, 200);
     return {
-      statusCode: 201,
-      body: { message: "Transaction created successfully" },
+      statusCode: 200,
+      body: { message: "Transaction updated successfully" },
     };
   } catch (error) {
     return {
