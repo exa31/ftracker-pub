@@ -17,7 +17,6 @@ export default defineEventHandler(async (event) => {
       user.token.push(token);
       await user.save();
       setCookie(event, "jwt", token, {
-        httpOnly: true,
         secure: true,
         sameSite: "strict",
       });

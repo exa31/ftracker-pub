@@ -36,7 +36,6 @@ export default defineEventHandler(async (event) => {
       emailIsUser.token.push(token);
       await emailIsUser.save();
       setCookie(event, "jwt", token, {
-        httpOnly: true,
         secure: true,
         sameSite: "strict",
       });
