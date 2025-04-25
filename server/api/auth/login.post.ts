@@ -22,8 +22,8 @@ export default defineEventHandler(async (event) => {
       });
       setResponseStatus(event, 200);
       return {
-        statusCode: 201,
-        body: { message: "User already exists", token },
+        statusCode: 200,
+        body: { message: "Success", token },
       };
     } else {
       setResponseStatus(event, 401);
@@ -32,5 +32,11 @@ export default defineEventHandler(async (event) => {
         body: { message: "Password is incorrect" },
       };
     }
+  } else {
+    setResponseStatus(event, 401);
+    return {
+      statusCode: 401,
+      body: { message: "Email or password is incorrect" },
+    };
   }
 });

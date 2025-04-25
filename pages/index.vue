@@ -33,10 +33,10 @@ const transactionDetail = reactive({
 const { data, status, error, refresh, clear } = useAsyncData<{ current: Transaction[], last: Transaction[] }>(
   'transactionsUser',
   async () => {
-    const jwt = useCookie('jwt')
+    const jwt =useCookie('jwt')
     return await $fetch<{ current: Transaction[], last: Transaction[] }>(`/api/transaction?view=${selectedView.value}`, {
       headers: {
-        Authorization: `Bearer ${jwt.value || store.jwt}`,
+        Authorization: `Bearer ${jwt.value }`,
       }
     })
   }
@@ -185,7 +185,7 @@ const handleSubmit = () => {
       </div>
     </section>
     <section>
-      <Modal v-if="!isEdit" v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
+      <Modal v-if="!isEdit" :is-edit="true" v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
       <Modal v-else :data="transactionDetail" :isEdit="true" v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
     </section>
     <section v-if="!loading">

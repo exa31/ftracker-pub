@@ -57,5 +57,11 @@ export default defineEventHandler(async (event) => {
         body: { message: "Server error" },
       };
     }
-  } catch (error) {}
+  } catch (error) {
+    setResponseStatus(event, 500);
+    return {
+      statusCode: 500,
+      body: { message: "Server error" },
+    };
+  }
 });

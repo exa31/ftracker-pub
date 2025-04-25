@@ -57,11 +57,12 @@ const submit = async () => {
         })
         if (res.ok) {
             const data = await res.json()
+            const jwt = useCookie('jwt')
+            jwt.value = data.body.token
             store.login(data.body.token)
             return router.push('/')
         } else {
             error.value = true
-            alert('An error occurred while trying to sign in')
         }
     } catch (error) {
         console.error(error)
