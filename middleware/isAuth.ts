@@ -1,7 +1,7 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware( (to, from) => {
   const runtimeConfig = useRuntimeConfig();
   const cookie = useCookie("jwt");
-  if (!cookie) {
+  if (!cookie.value) {
     return navigateTo("/login");
   }
 });
