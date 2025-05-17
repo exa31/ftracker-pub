@@ -21,6 +21,7 @@ const toast = useToast()
 const router = useRouter()
 const store = useDefaultStore()
 const isModalOpen = ref(false)
+const isLoading = ref(false)
 const isEdit = ref(false)
 const selectedView = ref(transactionViewOptions[1])
 const transactionDetail = reactive({
@@ -110,6 +111,8 @@ const expanseTotal = computed(() => {
 })
 
 const handleDeleteTransaction = async (id: string) => {
+  if (isLoading.value) return
+  try {
   const res = await fetch(`/api/transaction`, {
     method: 'DELETE',
     headers: {
@@ -118,7 +121,7 @@ const handleDeleteTransaction = async (id: string) => {
     },
     body: JSON.stringify({ id }),
   })
-  if (res.status === 200) {
+  if (res.ok) {
     toast.add({
       title: 'Success',
       description: 'Transaction deleted successfully',
@@ -129,6 +132,15 @@ const handleDeleteTransaction = async (id: string) => {
       title: 'Error',
       description: 'An error occurred while trying to delete the transaction',
     })
+  }
+  } catch (error) {
+    console.error(error)
+    toast.add({
+      title: 'Error',
+      description: 'An error occurred while trying to delete the transaction',
+    })
+  } finally {
+    isLoading.value = false
   }
 }
 

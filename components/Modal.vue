@@ -62,7 +62,12 @@
         formattedAmount.value = currency(formData.amount);
     };
 
+    const isLoading = ref(false);
     const onSubmit = async () => {
+        // Validasi form
+      if (isLoading.value) return;
+        isLoading.value = true;
+
         try {
             await schema.parseAsync(formData);
             // Kirim data ke server
@@ -130,6 +135,8 @@
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            isLoading.value = false;
         }
     };
 
