@@ -43,6 +43,11 @@ const { data, status, error, refresh, clear } = useAsyncData<{ current: Transact
   }
 )
 
+const isHydrated = ref(false)
+onMounted(() => {
+  isHydrated.value = true
+})
+
 const loading = computed(() => {
   return status.value !== 'success'
 })
@@ -183,7 +188,7 @@ const handleSubmit = () => {
         :last-amount="lastExpanseTotal" :periode="selectedView" color="red" :loading="loading" />
     </section>
     <section>
-      <div class="flex my-8 justify-between">
+      <div v-if="isHydrated" class="flex my-8 justify-between">
         <div>
           <h2 class="text-3xl mb-4 font-bold">Transactions</h2>
           <p class="text-gray-500">You have {{ income.length }} incomes and {{ expanse.length }} expanses this {{
@@ -197,8 +202,12 @@ const handleSubmit = () => {
       </div>
     </section>
     <section>
-      <Modal v-if="!isEdit" :is-edit="true" v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
-      <Modal v-else :data="transactionDetail" :isEdit="true" v-model:isModalOpen="isModalOpen" @submit="handleSubmit" />
+      <Modal
+          :isEdit="isEdit"
+          v-model:isModalOpen="isModalOpen"
+          :data="isEdit ? transactionDetail : undefined"
+          @submit="handleSubmit"
+      />
     </section>
     <section v-if="!loading">
       <div class="mb-8" v-for="(transactionOnDay, date) in transactionByDate" :key="date">
