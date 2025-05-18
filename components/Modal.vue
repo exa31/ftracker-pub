@@ -73,7 +73,7 @@
             // Kirim data ke server
             if (props.isEdit && props.data) {
                 formData._id = props.data?._id;
-                $fetch("/api/transaction", {
+                await $fetch("/api/transaction", {
                     method: "PUT",
                     body: JSON.stringify(formData),
                     headers: {
@@ -103,7 +103,7 @@
                         });
                     });
             } else {
-                $fetch("/api/transaction", {
+              await $fetch("/api/transaction", {
                     method: "POST",
                     body: JSON.stringify(formData),
                     headers: {
