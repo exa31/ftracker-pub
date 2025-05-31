@@ -181,7 +181,7 @@ const handleSubmit = () => {
       <h1 class="text-4xl font-extrabold">Summary</h1>
       <USelectMenu v-model="selectedView" :options="transactionViewOptions" />
     </section>
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-16 mb-10">
+    <section v-if="isHydrated" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-16 mb-10">
       <Trend title="Income" type="Income" :selectedView="selectedView" :amount="incomeTotal"
         :last-amount="lastIncomeTotal" :periode="selectedView" color="green" :loading="loading" />
       <Trend title="Expanse" type="Expanse" :selectedView="selectedView" :amount="expanseTotal"
