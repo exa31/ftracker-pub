@@ -23,7 +23,7 @@ const store = useDefaultStore()
 const isModalOpen = ref(false)
 const isLoading = ref(false)
 const isEdit = ref(false)
-const selectedView = ref(transactionViewOptions[1])
+const selectedView = ref(transactionViewOptions[2])
 const transactionDetail = reactive({
   createdAt: `${new Date().toISOString().split('T')[0]}`,
   description: '',
