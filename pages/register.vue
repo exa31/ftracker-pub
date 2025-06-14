@@ -1,5 +1,12 @@
 <script setup lang="ts">
 
+useHead({
+  title: 'FTraker - Register',
+  meta: [
+    { name: 'description', content: 'View your financial summary, including income and expenses.' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+  ],
+})
 
 const haveError = ref(false)
 

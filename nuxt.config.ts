@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     head: {
+      title: "FTraker - Finance Tracker",
       script: [
         { src: 'https://accounts.google.com/gsi/client', async: true, defer: true }
       ],

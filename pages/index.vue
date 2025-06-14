@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { transactionViewOptions } from '~/constants';
 
-
-definePageMeta({
-  title: 'Summary',
-  description: 'Summary of your transactions',
+useHead({
+  title: 'FTraker - Finance Tracker',
+  meta: [
+    { name: 'description', content: 'View your financial summary, including income and expenses.' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+  ],
 })
 
 interface Transaction {

@@ -4,6 +4,14 @@ import {
     type CredentialResponse,
 } from "vue3-google-signin";
 
+useHead({
+  title: 'FTraker - Login',
+  meta: [
+    { name: 'description', content: 'View your financial summary, including income and expenses.' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+  ],
+})
+
 const router = useRouter()
 const formData = reactive({
     email: '',
