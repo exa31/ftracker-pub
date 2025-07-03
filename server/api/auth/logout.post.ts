@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
       body: { message: "Logged out" },
     };
   } catch (error) {
+    logger.error(`Error in logout handler: ${error}`);
     setResponseStatus(event, 500);
     return {
       statusCode: 500,

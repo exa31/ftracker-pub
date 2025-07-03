@@ -1,7 +1,8 @@
 import Users from "~/server/model/users";
 import transactions from "~/server/model/transactions";
 import selectedViewPeriode from "~/server/utils/selectedViewPeriode";
-import jwt from "jsonwebtoken";
+import jwt, {JsonWebTokenError} from "jsonwebtoken";
+import logger from "~/server/utils/logger";
 
 export default defineEventHandler(async (events) => {
   try {
@@ -10,7 +11,10 @@ export default defineEventHandler(async (events) => {
     const token = header?.split(" ")[1];
     if (!token) {
       setResponseStatus(events, 401);
-      throw createError("Unauthorized");
+      return {
+        statusCode: 401,
+        message: "Unauthorized: No token provided",
+      }
     }
     const isValidToken = jwt.verify(
       token,
@@ -18,7 +22,10 @@ export default defineEventHandler(async (events) => {
     );
     if (!isValidToken) {
       setResponseStatus(events, 401);
-      throw createError("Unauthorized");
+      return  {
+        statusCode: 401,
+        message: "Unauthorized: Invalid token",
+      }
     }
     const { view } = getQuery(events) as { view: string };
     const { lastPeriode, currentPeriode } = selectedViewPeriode(view);
@@ -51,6 +58,33 @@ export default defineEventHandler(async (events) => {
       last,
     };
   } catch (error) {
-    return;
+    logger.error(`Error in get transaction: ${error}`);
+    if (error instanceof Error) {
+      if (error.name === "JsonWebTokenError") {
+        setResponseStatus(events, 401);
+        return {
+            statusCode: 401,
+            message: "Unauthorized: Invalid token",
+        }
+      } else if (error.name === "TokenExpiredError") {
+        setResponseStatus(events, 401);
+        return {
+            statusCode: 401,
+            message: "Unauthorized: Token expired",
+        }
+      } else {
+        setResponseStatus(events, 500);
+        return {
+            statusCode: 500,
+            message: `Internal Server Error: ${error.message}`,
+        }
+      }
+    } else {
+      setResponseStatus(events, 500);
+      return {
+        statusCode: 500,
+        message: "Internal Server Error",
+      }
+    }
   }
 });

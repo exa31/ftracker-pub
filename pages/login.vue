@@ -35,6 +35,12 @@ const handleLoginSuccess = (response: CredentialResponse) => {
         }
     }).catch((err: any) => {
         console.error(err)
+       if (err.statusCode === 404) {
+            router.push('/register')
+            return alert("User not found, please register")
+        } else {
+            return alert("An error occurred while trying to sign in")
+        }
     })
 }
 

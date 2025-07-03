@@ -1,8 +1,11 @@
 import users, { type User } from "~/server/model/users";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import logger from "~/server/utils/logger";
 
 export default defineEventHandler(async (event) => {
+  try {
+
   const runtimeConfig = useRuntimeConfig();
   const body = await readBody<{ email: string; password: string }>(event);
   const user: User | null = await users.findOne({ email: body.email });
@@ -37,6 +40,14 @@ export default defineEventHandler(async (event) => {
     return {
       statusCode: 401,
       body: { message: "Email or password is incorrect" },
+    };
+  }
+  } catch (error) {
+    logger.error(`Error in login handler: ${error}`);
+    setResponseStatus(event, 500);
+    return {
+      statusCode: 500,
+      body: { message: "Server error" },
     };
   }
 });

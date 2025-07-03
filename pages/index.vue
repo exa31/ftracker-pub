@@ -75,7 +75,7 @@ const income = computed(() => {
   return data.value!.current.filter((transaction: Transaction) => transaction.type.toLowerCase() === 'income')
 })
 
-if (error.value) {
+if (error.value && isHydrated.value) {
   toast.add({
     title: 'Error',
     description: 'An error occurred while trying to fetch the transactions',
@@ -163,9 +163,25 @@ const handleEdit = (date: string, _id: string) => {
   isModalOpen.value = true
 }
 
-watch(selectedView, () => refresh())
+watch(selectedView, async () => {
+  await refresh()
+  if (error.value?.statusCode === 401 && isHydrated.value ) {
+    toast.add({
+      title: 'Unauthorized',
+      description: 'You need to login to view your transactions',
+    })
+    router.push('/login')
+  } else if (error.value && isHydrated.value) {
+    toast.add({
+      title: 'Error',
+      description: 'An error occurred while trying to fetch the transactions',
+    })
+  }
+}
+)
 
 const handleOpenModal = (value: boolean) => {
+  isEdit.value = false
   isModalOpen.value = value
 }
 

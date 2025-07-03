@@ -75,9 +75,32 @@ export default defineEventHandler(async (events) => {
       body: { message: "Transaction updated successfully" },
     };
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: { message: (error as Error).message },
-    };
+    if (error instanceof Error) {
+      if (error.name === "JsonWebTokenError") {
+        setResponseStatus(events, 401);
+        return {
+          statusCode: 401,
+          message: "Unauthorized: Invalid token",
+        }
+      } else if (error.name === "TokenExpiredError") {
+        setResponseStatus(events, 401);
+        return {
+          statusCode: 401,
+          message: "Unauthorized: Token expired",
+        }
+      } else {
+        setResponseStatus(events, 500);
+        return {
+          statusCode: 500,
+          message: `Internal Server Error: ${error.message}`,
+        }
+      }
+    } else {
+      setResponseStatus(events, 500);
+      return {
+        statusCode: 500,
+        message: "Internal Server Error",
+      }
+    }
   }
 });

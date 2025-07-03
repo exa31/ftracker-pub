@@ -1,6 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import users, { type User } from "~/server/model/users";
 import jwt from "jsonwebtoken";
+import logger from "~/server/utils/logger";
 
 interface Decoded {
   email: string;
@@ -58,6 +59,7 @@ export default defineEventHandler(async (event) => {
       };
     }
   } catch (error) {
+    logger.error(`Error during Google authentication: ${error}`);
     setResponseStatus(event, 500);
     return {
       statusCode: 500,
