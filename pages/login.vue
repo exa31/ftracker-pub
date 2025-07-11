@@ -97,6 +97,7 @@ const submit = async () => {
 
 <template>
     <div class="flex justify-center items-center h-screen">
+      <UNotifications />
         <div class="w-full max-w-sm p-6 m-auto mx-auto bg-white rounded-lg shadow-md dark:bg-gray-800">
             <div class="flex justify-center mx-auto">
                 <img class="w-auto h-7 sm:h-8" src="https://merakiui.com/images/logo.svg" alt="">

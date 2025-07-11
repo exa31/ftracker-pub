@@ -9,7 +9,7 @@ useHead({
 })
 
 const haveError = ref(false)
-
+const toast = useToast()
 const router = useRouter()
 
 const error = reactive<{
@@ -67,12 +67,33 @@ const handleSubmit = () => {
             if (res.statusCode === 201) {
                 router.push('/login')
             } else if (res.statusCode === 409) {
-                alert('Email has already been taken')
+              toast.add({
+                    title: 'Email already exists',
+                    description: 'Please use a different email address'
+                })
             } else {
-                alert('An error occurred')
+                toast.add({
+                    title: 'Error',
+                    description: 'An error occurred while trying to register'
+                })
             }
-        }).catch(() => {
-            alert('An error occurred')
+        }).catch((err) => {
+          if (err.statusCode === 409) {
+                toast.add({
+                    title: 'Email already exists',
+                    description: 'Please use a different email address'
+                })
+            } else if (err.statusCode === 400) {
+                toast.add({
+                    title: 'Bad Request',
+                    description: 'Please fill all the fields correctly'
+                })
+            }else {
+            toast.add({
+                title: 'Error',
+                description: 'An error occurred while trying to register'
+            })
+          }
         })
     }
 }
@@ -81,6 +102,7 @@ const handleSubmit = () => {
 
 <template>
     <section class="h-screen flex container mx-auto justify-center items-center">
+      <UNotifications />
         <div class="max-w-4xl   w-full  p-6 bg-white rounded-md shadow-md dark:bg-gray-800">
             <h2 class="text-lg font-semibold text-gray-700 capitalize dark:text-white">Register</h2>
             <form @submit.prevent="handleSubmit">
