@@ -16,9 +16,6 @@ const userSchema = new Schema<User>({
     email: { type: String, required: true, unique: true },
     token: [{ type: String }],
     password: { type: String, required: true },
-    blog: [{ type: Types.ObjectId, ref: 'Blog' }],
-    like: [{ type: Types.ObjectId, ref: 'Blog' }],
-    saveBlog: [{ type: Types.ObjectId, ref: 'Blog' }],
 });
 
 export default model<User>('User', userSchema);
