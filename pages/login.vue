@@ -12,6 +12,7 @@ useHead({
   ],
 })
 
+const toast = useToast()
 const router = useRouter()
 const formData = reactive({
     email: '',
@@ -37,9 +38,14 @@ const handleLoginSuccess = (response: CredentialResponse) => {
         console.error(err)
        if (err.statusCode === 404) {
             router.push('/register')
-            return alert("User not found, please register")
+            toast.add(
+                {
+                    title: 'User not found',
+                    description: "Please register to continue",
+                }
+            )
         } else {
-            return alert("An error occurred while trying to sign in")
+            handleLoginError()
         }
     })
 }
@@ -48,7 +54,12 @@ const handleLoginSuccess = (response: CredentialResponse) => {
 
 // handle an error event
 const handleLoginError = () => {
-    alert("An error occurred while trying to sign in");
+    toast.add(
+        {
+          title : 'Login Failed',
+           description : "An error occurred while trying to sign in",
+        }
+    )
 };
 
 const error = ref(false)
