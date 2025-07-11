@@ -37,13 +37,13 @@ const handleLoginSuccess = (response: CredentialResponse) => {
     }).catch((err: any) => {
         console.error(err)
        if (err.statusCode === 404) {
-            router.push('/register')
             toast.add(
                 {
                     title: 'User not found',
                     description: "Please register to continue",
                 }
             )
+            router.push('/register')
         } else {
             handleLoginError()
         }
