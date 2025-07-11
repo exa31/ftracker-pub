@@ -30,7 +30,7 @@ export default defineEventHandler(async (events) => {
     const { view } = getQuery(events) as { view: string };
     const { lastPeriode, currentPeriode } = selectedViewPeriode(view);
     const decoded = jwt.decode(token) as { email: string; name: string };
-    const usersData = await Users.findOne({ email: decoded.email });
+    const usersData = await Users.findOne({ email: decoded.email, token: { $in: [token] } });
     if (view === "All") {
       const all = await transactions
         .find({ user: usersData!._id })

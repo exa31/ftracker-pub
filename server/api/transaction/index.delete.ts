@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import Transactions from "~/server/model/transactions";
 import logger from "~/server/utils/logger";
+import Users from "~/server/model/users";
 
 export default defineEventHandler(async (events) => {
   try {
@@ -25,9 +26,21 @@ export default defineEventHandler(async (events) => {
       body: { message: "Unauthorized" },
     };
   }
+  const decoded = jwt.decode(token) as { email: string; name: string };
+    const user = await Users.findOne({
+      email: decoded.email,
+        token: { $in: [token] },
+    });
+    if (!user) {
+    setResponseStatus(events, 401);
+    return {
+      statusCode: 401,
+      body: { message: "Unauthorized" },
+    };
+    }
   const transactions = await Transactions.findOneAndDelete({ _id: id });
   if (!transactions) {
-    console.log("not found");
+    logger.error(`Transaction with id ${id} not found`);
     setResponseStatus(events, 404);
     return {
       statusCode: 404,

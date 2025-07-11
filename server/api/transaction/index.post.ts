@@ -27,7 +27,9 @@ export default defineEventHandler(async (events) => {
       };
     }
     const decoded = jwt.decode(token) as { email: string; name: string };
-    const user = await Users.findOne({ email: decoded.email });
+    const user = await Users.findOne({ email: decoded.email, token: {
+        $in: [token]
+      } });
     if (!user) {
       setResponseStatus(events, 401);
       return {
