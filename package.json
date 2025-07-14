@@ -13,7 +13,6 @@
     "@nuxt/ui": "^2.18.4",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@pinia/nuxt": "^0.5.4",
-    "winston": "^3.17.0",
     "bcrypt": "^5.1.1",
     "date-fns": "^2.30.0",
     "google-auth-library": "^9.14.1",
@@ -22,11 +21,13 @@
     "nuxt": "^3.13.0",
     "nuxt-vue3-google-signin": "^0.0.11",
     "pinia": "^2.2.2",
+    "redis": "^5.6.0",
     "v-calendar": "^3.1.2",
     "vue": "latest",
     "vue-cookies": "^1.8.4",
     "vue-router": "latest",
     "vue3-google-signin": "^2.0.0",
+    "winston": "^3.17.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

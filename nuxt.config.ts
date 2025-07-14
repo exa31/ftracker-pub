@@ -18,6 +18,7 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@nuxt/ui', 'nuxt-vue3-google-signin'],
   runtimeConfig: {
     secretJwtKey: process.env.NUXT_SECRETJWT,
+    REDIS_URL: process.env.NUXT_REDIS_URL,
     MONGODB_URL: process.env.NUXT_MONGODB_URL,
     google: {
       clientId: process.env.NUXT_GOOGLE_CLIENT_ID,
